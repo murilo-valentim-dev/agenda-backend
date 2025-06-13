@@ -1,22 +1,18 @@
-# Etapa 1: Build da aplicação
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+# Etapa de build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
 # Copia o csproj e restaura as dependências
 COPY AluguelApi.csproj ./
 RUN dotnet restore
 
-# Copia todo o código e faz o build da aplicação
+# Copia o restante do código e faz o build
 COPY . ./
 RUN dotnet publish -c Release -o out
 
-# Etapa 2: Imagem final (runtime)
-FROM mcr.microsoft.com/dotnet/aspnet:7.0
+# Etapa de runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/out ./
 
-# Expõe a porta padrão
-EXPOSE 80
-
-# Inicia o app
 ENTRYPOINT ["dotnet", "AluguelApi.dll"]
