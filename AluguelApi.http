@@ -1,0 +1,6 @@
+@AluguelApi_HostAddress = http://localhost:5244
+
+GET {{AluguelApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

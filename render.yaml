@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: aluguel-api
+    env: dotnet
+    buildCommand: dotnet build
+    startCommand: dotnet AluguelApi.dll
+    runtime: dotnet
+    plan: free
+    buildEnvironmentVariables:
+      - key: DOTNET_VERSION
+        value: 8.0.0
