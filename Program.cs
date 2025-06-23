@@ -12,7 +12,13 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("https://agenda-frontend-one.vercel.app").AllowAnyMethod().AllowAnyHeader();
+        policy
+            .SetIsOriginAllowed(origin =>
+                origin.Contains("vercel.app") &&
+                (origin.StartsWith("https://agenda-frontend-") || origin == "https://agenda-frontend-one.vercel.app")
+            )
+            .AllowAnyMethod()
+            .AllowAnyHeader();
     });
 });
 
