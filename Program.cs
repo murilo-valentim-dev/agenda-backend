@@ -19,11 +19,19 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy
-            .WithOrigins("https://agenda-frontend-one.vercel.app")
+            .SetIsOriginAllowed(origin =>
+                origin.Contains("vercel.app") &&
+                (
+                    origin.StartsWith("https://agenda-frontend-") ||
+                    origin == "https://agenda-frontend-one.vercel.app" ||
+                    origin == "https://agenda-frontend-l8bbfbsos-murilo-valentims-projects.vercel.app"
+                )
+            )
             .AllowAnyMethod()
             .AllowAnyHeader();
     });
 });
+
 
 builder.Services.AddControllers();
 
