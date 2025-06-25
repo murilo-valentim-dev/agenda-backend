@@ -13,17 +13,13 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseNpgsql(connectionString)
 );
 
-
-// ✅ Configuração do CORS para Vercel
+// ✅ Configuração de CORS mais direta e confiável
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy
-            .SetIsOriginAllowed(origin =>
-                origin.Contains("vercel.app") &&
-                (origin.StartsWith("https://agenda-frontend-") || origin == "https://agenda-frontend-one.vercel.app")
-            )
+            .WithOrigins("https://agenda-frontend-one.vercel.app")
             .AllowAnyMethod()
             .AllowAnyHeader();
     });
@@ -33,9 +29,8 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// ✅ Pipeline de middlewares
 app.UseRouting();
-app.UseCors("AllowFrontend"); // Precisa vir após UseRouting
+app.UseCors("AllowFrontend");
 app.UseAuthorization();
 app.MapControllers();
 
