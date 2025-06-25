@@ -3,11 +3,18 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Adiciona o contexto do banco de dados
-builder.Services.AddDbContext<DataContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException("Connection string 'DefaultConnection' is missing.");
+}
 
-// ✅ Configuração do CORS
+builder.Services.AddDbContext<DataContext>(options =>
+    options.UseNpgsql(connectionString)
+);
+
+
+// ✅ Configuração do CORS para Vercel
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -28,11 +35,11 @@ var app = builder.Build();
 
 // ✅ Pipeline de middlewares
 app.UseRouting();
-app.UseCors("AllowFrontend"); // A ordem importa: precisa vir após UseRouting
+app.UseCors("AllowFrontend"); // Precisa vir após UseRouting
 app.UseAuthorization();
 app.MapControllers();
 
-// ✅ Porta para compatibilidade com Render
+// ✅ Porta configurada para Render
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5244";
 app.Urls.Add($"http://*:{port}");
 
