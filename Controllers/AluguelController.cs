@@ -27,6 +27,9 @@ namespace AluguelApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Aluguel>> PostAluguel(Aluguel aluguel)
         {
+            // Corrige o DateTime para UTC
+            aluguel.Data = DateTime.SpecifyKind(aluguel.Data, DateTimeKind.Utc);
+
             _context.Alugueis.Add(aluguel);
             await _context.SaveChangesAsync();
 
@@ -57,6 +60,9 @@ namespace AluguelApi.Controllers
             {
                 return BadRequest("ID do aluguel não confere.");
             }
+
+            // Corrige o DateTime para UTC
+            aluguel.Data = DateTime.SpecifyKind(aluguel.Data, DateTimeKind.Utc);
 
             _context.Entry(aluguel).State = EntityState.Modified;
 
