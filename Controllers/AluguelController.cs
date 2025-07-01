@@ -16,14 +16,12 @@ namespace AluguelApi.Controllers
             _context = context;
         }
 
-        // GET: api/aluguel
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Aluguel>>> GetAlugueis()
         {
             return await _context.Alugueis.ToListAsync();
         }
 
-        // POST: api/aluguel
         [HttpPost]
         public async Task<ActionResult<Aluguel>> PostAluguel(Aluguel aluguel)
         {
@@ -35,7 +33,6 @@ namespace AluguelApi.Controllers
             return CreatedAtAction(nameof(GetAlugueis), new { id = aluguel.Id }, aluguel);
         }
 
-        // GET: api/aluguel/por-data/2024-06-10
         [HttpGet("por-data/{data}")]
         public async Task<ActionResult<IEnumerable<Aluguel>>> GetAlugueisPorData(string data)
         {
@@ -44,7 +41,6 @@ namespace AluguelApi.Controllers
                 return BadRequest("Data inválida");
             }
 
-            // Forçar o DateTime para UTC
             dataConvertida = DateTime.SpecifyKind(dataConvertida, DateTimeKind.Utc);
 
             var alugueis = await _context.Alugueis
@@ -54,7 +50,6 @@ namespace AluguelApi.Controllers
             return alugueis;
         }
 
-        // PUT: api/aluguel/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAluguel(int id, Aluguel aluguel)
         {
@@ -86,7 +81,6 @@ namespace AluguelApi.Controllers
             return NoContent();
         }
 
-        // DELETE: api/aluguel/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAluguel(int id)
         {
