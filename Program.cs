@@ -3,18 +3,16 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Conexão com o banco de dados
+// conexão com banco
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (string.IsNullOrWhiteSpace(connectionString))
-{
     throw new InvalidOperationException("Connection string 'DefaultConnection' is missing.");
-}
 
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseNpgsql(connectionString)
 );
 
-// Configuração do CORS
+// Configuração de CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -25,7 +23,8 @@ builder.Services.AddCors(options =>
                 "https://agenda-frontend-l8bbfbsos-murilo-valentims-projects.vercel.app"
             )
             .AllowAnyMethod()
-            .AllowAnyHeader();
+            .AllowAnyHeader()
+            .WithExposedHeaders("Access-Control-Allow-Origin");
     });
 });
 
@@ -33,19 +32,33 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Redirecionamento HTTPS (essencial para Render + Vercel)
+// HTTPS redirection
 app.UseHttpsRedirection();
 
-// Middleware pipeline
 app.UseRouting();
+
+// Se quiser testar temporariamente aceitando qualquer origem:
+// policy => policy.SetIsOriginAllowed(_ => true)...
 
 app.UseCors("AllowFrontend");
 
 app.UseAuthorization();
 
+// **Adicionar endpoint explícito para lidar com preflight OPTIONS**
+app.MapMethods("{*path}", new[] { "OPTIONS" }, (HttpContext context) =>
+{
+    context.Response.StatusCode = 204;
+    context.Response.Headers["Access-Control-Allow-Origin"] = context.Request.Headers["Origin"].ToString();
+    context.Response.Headers["Access-Control-Allow-Methods"] = "GET,POST,PUT,DELETE,OPTIONS";
+    context.Response.Headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization";
+
+    return Task.CompletedTask;
+});
+
+// Rotear controllers
 app.MapControllers();
 
-// Porta dinâmica para ambiente Render
+// Porta dinâmica para Render
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5244";
 app.Urls.Add($"http://*:{port}");
 
