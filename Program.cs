@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Conexão com o banco de dados
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (string.IsNullOrWhiteSpace(connectionString))
 {
@@ -13,7 +14,7 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseNpgsql(connectionString)
 );
 
-// Configuração CORS - ajuste as origens permitidas aqui
+// Configuração do CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -32,16 +33,19 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
+// Redirecionamento HTTPS (essencial para Render + Vercel)
+app.UseHttpsRedirection();
+
+// Middleware pipeline
 app.UseRouting();
 
-// Aplicar CORS configurado
 app.UseCors("AllowFrontend");
 
 app.UseAuthorization();
 
 app.MapControllers();
 
-// Porta configurada para Render
+// Porta dinâmica para ambiente Render
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5244";
 app.Urls.Add($"http://*:{port}");
 
